@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ವೃತ್ತಿಪರ ರಿವಿಷನ್ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್</title>
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-dark); padding: 20px; }
+        .dashboard { max-width: 1200px; margin: 0 auto; }
+
+        /* Header & Stats */
+        .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 20px 25px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); flex-wrap: wrap; gap: 20px; }
+        .title h1 { color: var(--primary); font-size: 26px; display: flex; align-items: center; gap: 10px; }
+        .stats { display: flex; gap: 15px; }
+        .stat-box { background: var(--primary-light); padding: 15px 25px; border-radius: 10px; text-align: center; border: 1px solid #bfdbfe; min-width: 140px; }
+        .stat-box.alert { background: #fee2e2; border-color: #fecaca; }
+        .stat-box h3 { font-size: 24px; color: var(--primary); }
+        .stat-box.alert h3 { color: var(--danger); }
+        
+        .export-btn { background: #10b981; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
+        .export-btn:hover { background: #059669; }
+
+        /* Form Section */
+        .add-form { background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 35px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; align-items: end; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group label { font-weight: 600; color: var(--text-dark); font-size: 14px; }
+        input, select { padding: 12px 15px; border: 1px solid var(--border); border-radius: 8px; outline: none; transition: border-color 0.3s; font-size: 15px; }
+        input:focus { border-color: var(--primary); }
+        button.add-btn { background: var(--primary); color: white; border: none; padding: 13px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; display: flex; justify-content: center; align-items: center; gap: 8px; transition: all 0.3s; }
+        button.add-btn:hover { background: #1d4ed8; transform: translateY(-2px); }
+
+        /* Cards & Categories */
+        .category-section { margin-bottom: 40px; }
+        .category-title { font-size: 22px; color: var(--text-dark); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 3px solid var(--primary); display: inline-block; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 25px; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); position: relative; border-top: 5px solid var(--primary); transition: transform 0.3s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .card-title { font-size: 19px; font-weight: bold; color: var(--text-dark); }
+        .card-date { font-size: 13px; color: var(--text-muted); margin-top: 5px; }
+        .delete-btn { background: #fee2e2; border: none; color: var(--danger); cursor: pointer; font-size: 14px; padding: 8px 12px; border-radius: 6px; transition: background 0.3s; }
+        .delete-btn:hover { background: #fca5a5; }
+
+        /* Revision List & Checkbox */
+        .revision-list { list-style: none; margin-top: 15px; }
+        .revision-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed var(--border); }
+        .rev-info { display: flex; align-items: center; gap: 15px; }
+        .custom-checkbox { width: 22px; height: 22px; cursor: pointer; accent-color: var(--success); }
+        .rev-details { display: flex; flex-direction: column; }
+        .rev-day { font-weight: 700; font-size: 14px; }
+        .rev-date { font-size: 12px; color: var(--text-muted); }
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+        
+        .status-pending { background: #f1f5f9; color: var(--text-muted); }
+        .status-due { background: #fee2e2; color: var(--danger); animation: blink 1.5s infinite; }
+        .status-completed { background: #d1fae5; color: var(--success); }
+        .completed-text { text-decoration: line-through; color: var(--text-muted); opacity: 0.7; }
+
+        .progress-container { width: 100%; height: 8px; background: var(--border); border-radius: 4px; margin-top: 20px; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--success); transition: width 0.5s ease; }
+
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        @media (max-width: 768px) { .header-section { flex-direction: column; text-align: center; } .stats { width: 100%; justify-content: center; } }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <div class="header-section">
+        <div class="title">
+            <h1><i class="fas fa-book-reader"></i> ಸ್ಮಾರ್ಟ್ ರಿವಿಷನ್ ಟ್ರ್ಯಾಕರ್</h1>
+            <p style="color: var(--text-muted); margin-top: 5px;">ಸ್ಪರ್ಧಾತ್ಮಕ ಪರೀಕ್ಷೆಗಳ ತಯಾರಿಗಾಗಿ (1, 3, 7, 30 ದಿನಗಳು)</p>
+            <button class="export-btn" onclick="exportToExcel()">
+                <i class="fas fa-file-excel"></i> Excel ಗೆ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ
+            </button>
+        </div>
+        <div class="stats">
+            <div class="stat-box">
+                <h3 id="stat-total">0</h3><p>ಒಟ್ಟು ನೋಟ್ಸ್</p>
+            </div>
+            <div class="stat-box alert">
+                <h3 id="stat-due">0</h3><p>ಇಂದು ಓದಬೇಕಾದವು</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="add-form">
+        <div class="form-group">
+            <label>ವಿಷಯ / ವರ್ಗ (Category)</label>
+            <input type="text" id="category" placeholder="ಉದಾ: Kannada Grammar, Constitution..." list="category-list">
+            <datalist id="category-list">
+                <option value="Kannada">
+                <option value="English">
+                <option value="Constitution">
+                <option value="Computer">
+            </datalist>
+        </div>
+        <div class="form-group">
+            <label>ಟಾಪಿಕ್ ಹೆಸರು (Topic Name)</label>
+            <input type="text" id="topic" placeholder="ಉದಾ: ಕಾರಕಗಳು, ವಿಭಕ್ತಿ ಪ್ರತ್ಯಯ..." required>
+        </div>
+        <div class="form-group">
+            <label>ಮೊದಲು ಓದಿದ ದಿನಾಂಕ</label>
+            <input type="date" id="date" required>
+        </div>
+        <button class="add-btn" id="addBtn" onclick="addNote()">
+            <i class="fas fa-plus"></i> ಸೇರಿಸಿ
+        </button>
+    </div>
+
+    <div id="content-area"></div>
+</div>
+
+<script>
+    document.getElementById('date').valueAsDate = new Date();
+    let notesData = JSON.parse(localStorage.getItem('proRevisionNotes')) || [];
+    const intervals = [
+        { day: 1, label: "1ನೇ ದಿನ" }, 
+        { day: 3, label: "3ನೇ ದಿನ" }, 
+        { day: 7, label: "7ನೇ ದಿನ" }, 
+        { day: 30, label: "30ನೇ ದಿನ" }
+    ];
+
+    // ⚠️ ಸೂಚನೆ: ಇಲ್ಲಿ ನಿಮ್ಮ Google Apps Script ನ Web App URL ಅನ್ನು ಪೇಸ್ಟ್ ಮಾಡಿ ⚠️
+    const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzxOuya2AHxgbJ3b-FQzA9WDq1uaUkAjsQtYUVMuHV7K338REpGKVrPnen2g38fpIt6/exec"; 
+
+    function saveData() { 
+        localStorage.setItem('proRevisionNotes', JSON.stringify(notesData)); 
+        renderDashboard(); 
+    }
+
+    // ಹೊಸ ನೋಟ್ಸ್ ಸೇರಿಸುವ ಫಂಕ್ಷನ್
+    function addNote() {
+        const category = document.getElementById('category').value.trim() || 'ಇತರೆ';
+        const topic = document.getElementById('topic').value.trim();
+        const date = document.getElementById('date').value;
+
+        if (!topic || !date) { alert('ದಯವಿಟ್ಟು ಟಾಪಿಕ್ ಮತ್ತು ದಿನಾಂಕವನ್ನು ನಮೂದಿಸಿ!'); return; }
+
+        const noteId = Date.now();
+        const newNote = {
+            id: noteId, category: category, topic: topic, date: date,
+            completions: { 1: false, 3: false, 7: false, 30: false }
+        };
+
+        notesData.push(newNote);
+        document.getElementById('topic').value = '';
+        saveData();
+
+        // ಗೂಗಲ್ ಶೀಟ್‌ಗೆ ಸೇರಿಸುವುದು
+        if(GOOGLE_SHEET_URL !== "YOUR_COPIED_URL_HERE") {
+            const driveData = {
+                action: "add", id: noteId, category: category, topic: topic, date: date,
+                day1: "ಬಾಕಿ ಇದೆ", day3: "ಬಾಕಿ ಇದೆ", day7: "ಬಾಕಿ ಇದೆ", day30: "ಬಾಕಿ ಇದೆ"
+            };
+
+            const btn = document.getElementById('addBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ಸೇವ್ ಆಗುತ್ತಿದೆ...';
+
+            fetch(GOOGLE_SHEET_URL, {
+                method: 'POST',
+                body: JSON.stringify(driveData),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            }).then(() => btn.innerHTML = originalText)
+              .catch(e => { console.error(e); btn.innerHTML = originalText; });
+        }
+    }
+
+    // ಟಿಕ್ ಮಾಡಿದಾಗ ಸ್ಟೇಟಸ್ ಬದಲಾಯಿಸುವ ಫಂಕ್ಷನ್ (Google Sheet Update)
+    function toggleCompletion(noteId, day) { 
+        const note = notesData.find(n => n.id === noteId); 
+        if (note) { 
+            note.completions[day] = !note.completions[day]; 
+            saveData(); 
+
+            if(GOOGLE_SHEET_URL !== "YOUR_COPIED_URL_HERE") {
+                const updateData = {
+                    action: "update", id: noteId, day: day,
+                    isCompleted: note.completions[day]
+                };
+
+                fetch(GOOGLE_SHEET_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(updateData),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                }).catch(e => console.error(e));
+            }
+        } 
+    }
+
+    // ಲೋಕಲ್ ಡಿಲೀಟ್ 
+    function deleteNote(id) { 
+        if(confirm('ಈ ಟಾಪಿಕ್ ಅನ್ನು ಅಳಿಸಲು ನೀವು ಖಚಿತವೇ?')) { 
+            notesData = notesData.filter(n => n.id !== id); 
+            saveData(); 
+        } 
+    }
+
+    function calculateDate(baseDate, days) { let d = new Date(baseDate); d.setDate(d.getDate() + days); return d; }
+
+    function getStatus(revDate, isCompleted) {
+        if (isCompleted) return { class: 'status-completed', text: '<i class="fas fa-check-circle"></i> ಮುಗಿದಿದೆ' };
+        const today = new Date(); today.setHours(0,0,0,0);
+        revDate.setHours(0,0,0,0);
+        const diff = (revDate - today) / (1000 * 60 * 60 * 24);
+        if (diff < 0) return { class: 'status-due', text: '<i class="fas fa-exclamation-circle"></i> ತಡವಾಗಿದೆ' };
+        if (diff === 0) return { class: 'status-due', text: '<i class="fas fa-bell"></i> ಇಂದು ಓದಿ!' };
+        return { class: 'status-pending', text: `${diff} ದಿನ ಬಾಕಿ` };
+    }
+
+    function renderDashboard() {
+        const contentArea = document.getElementById('content-area');
+        contentArea.innerHTML = '';
+        let dueTodayCount = 0;
+        document.getElementById('stat-total').innerText = notesData.length;
+
+        const groupedData = notesData.reduce((acc, note) => {
+            if (!acc[note.category]) acc[note.category] = [];
+            acc[note.category].push(note); return acc;
+        }, {});
+
+        Object.keys(groupedData).sort().forEach(category => {
+            const section = document.createElement('div'); section.className = 'category-section';
+            section.innerHTML = `<h2 class="category-title"><i class="fas fa-folder-open"></i> ${category}</h2>`;
+            const grid = document.createElement('div'); grid.className = 'cards-grid';
+
+            groupedData[category].sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(note => {
+                let completedCount = 0; let listHTML = '';
+                intervals.forEach(interval => {
+                    const revDate = calculateDate(note.date, interval.day);
+                    const isCompleted = note.completions[interval.day];
+                    const status = getStatus(revDate, isCompleted);
+                    if (isCompleted) completedCount++;
+                    if (status.class === 'status-due' && !isCompleted) dueTodayCount++;
+
+                    const dateStr = revDate.toLocaleDateString('kn-IN');
+                    const textClass = isCompleted ? 'completed-text' : '';
+
+                    listHTML += `
+                        <li class="revision-item">
+                            <div class="rev-info">
+                                <input type="checkbox" class="custom-checkbox" ${isCompleted ? 'checked' : ''} onchange="toggleCompletion(${note.id}, ${interval.day})">
+                                <div class="rev-details ${textClass}">
+                                    <span class="rev-day">${interval.label}</span>
+                                    <span class="rev-date"><i class="far fa-calendar-alt"></i> ${dateStr}</span>
+                                </div>
+                            </div>
+                            <span class="status-badge ${status.class}">${status.text}</span>
+                        </li>`;
+                });
+
+                const progress = (completedCount / 4) * 100;
+                grid.innerHTML += `
+                    <div class="card">
+                        <div class="card-header">
+                            <div><div class="card-title">${note.topic}</div><div class="card-date">ಪ್ರಾರಂಭ: ${new Date(note.date).toLocaleDateString('kn-IN')}</div></div>
+                            <button class="delete-btn" onclick="deleteNote(${note.id})" title="ಅಳಿಸಿಹಾಕಿ"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                        <ul class="revision-list">${listHTML}</ul>
+                        <div class="progress-container"><div class="progress-bar" style="width: ${progress}%"></div></div>
+                    </div>`;
+            });
+            section.appendChild(grid); contentArea.appendChild(section);
+        });
+
+        document.getElementById('stat-due').innerText = dueTodayCount;
+        if(dueTodayCount > 0 && !window.alertShown) {
+            setTimeout(() => { alert(`ಜ್ಞಾಪನೆ: ಇಂದು ಓದಬೇಕಾದ ${dueTodayCount} ಟಾಪಿಕ್‌ಗಳಿವೆ!`); window.alertShown = true; }, 500);
+        }
+    }
+
+    // Excel Export
+    function exportToExcel() {
+        if (notesData.length === 0) { alert("ಡೌನ್‌ಲೋಡ್ ಮಾಡಲು ಯಾವುದೇ ಡೇಟಾ ಇಲ್ಲ!"); return; }
+        let csvContent = "ID,ವರ್ಗ(Category),ಟಾಪಿಕ್(Topic),ಪ್ರಾರಂಭದ ದಿನಾಂಕ(Start Date),1ನೇ ದಿನ,3ನೇ ದಿನ,7ನೇ ದಿನ,30ನೇ ದಿನ\n";
+        notesData.forEach(note => {
+            const row = [ note.id, `"${note.category}"`, `"${note.topic}"`, `"${note.date}"`,
+                note.completions[1] ? "ಮುಗಿದಿದೆ" : "ಬಾಕಿ ಇದೆ", note.completions[3] ? "ಮುಗಿದಿದೆ" : "ಬಾಕಿ ಇದೆ",
+                note.completions[7] ? "ಮುಗಿದಿದೆ" : "ಬಾಕಿ ಇದೆ", note.completions[30] ? "ಮುಗಿದಿದೆ" : "ಬಾಕಿ ಇದೆ"
+            ];
+            csvContent += row.join(",") + "\n";
+        });
+        const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "My_Revision_Tracker.csv";
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    }
+
+    renderDashboard();
+</script>
+</body>
+</html>
